@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-extrabold text-lg tracking-wider text-slate-900 font-sans">
+              <span className="font-extrabold text-lg tracking-wider text-brown font-sans">
                 OBSERVA
               </span>
               <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30">
@@ -53,8 +53,8 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => onSelectMode('blind')}
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               currentMode === 'blind'
-                ? 'bg-accent text-background shadow-md shadow-accent/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                ? 'bg-accent text-white shadow-md shadow-accent/20'
+                : 'text-slate-600 hover:text-brown hover:bg-slate-100'
             }`}
           >
             <Eye className="w-4 h-4" />
@@ -65,8 +65,8 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => onSelectMode('deaf')}
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               currentMode === 'deaf'
-                ? 'bg-accent text-background shadow-md shadow-accent/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                ? 'bg-accent text-white shadow-md shadow-accent/20'
+                : 'text-slate-600 hover:text-brown hover:bg-slate-100'
             }`}
           >
             <Ear className="w-4 h-4" />
@@ -77,8 +77,8 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => onSelectMode('nonverbal')}
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               currentMode === 'nonverbal'
-                ? 'bg-accent text-background shadow-md shadow-accent/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                ? 'bg-accent text-white shadow-md shadow-accent/20'
+                : 'text-slate-600 hover:text-brown hover:bg-slate-100'
             }`}
           >
             <MessageSquare className="w-4 h-4" />
@@ -89,8 +89,8 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => onSelectMode('emergency-receiver')}
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               currentMode === 'emergency-receiver'
-                ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/50'
+                ? 'bg-danger text-white shadow-md shadow-danger/20'
+                : 'text-slate-600 hover:text-brown hover:bg-slate-100'
             }`}
           >
             <Radio className="w-4 h-4" />
@@ -105,9 +105,9 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => voiceState === 'idle' ? startListening() : stopListening()}
             className={`p-2 rounded-lg border transition-colors ${
               voiceState === 'listening' ? 'bg-danger text-white border-danger animate-pulse' :
-              voiceState === 'processing' ? 'bg-amber-500 text-white border-amber-500' :
+              voiceState === 'processing' ? 'bg-warning text-white border-warning' :
               voiceState === 'speaking' ? 'bg-accent text-white border-accent' :
-              'bg-surface border-surface-border text-slate-300 hover:text-white hover:border-slate-600'
+              'bg-surface border-surface-border text-slate-600 hover:text-brown hover:border-slate-300'
             }`}
             title="Voice Assistant Status"
             aria-label={`Voice Assistant is ${voiceState}. Click to toggle.`}
@@ -122,7 +122,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* System Telemetry Drawer Button */}
           <button
             onClick={onOpenStatusDrawer}
-            className="p-2 rounded-lg bg-surface border border-surface-border text-slate-300 hover:text-white hover:border-slate-600 transition-colors"
+            className="p-2 rounded-lg bg-surface border border-surface-border text-slate-600 hover:text-brown hover:border-slate-300 transition-colors"
             title="System Telemetry & Health"
             aria-label="Open System Status"
           >

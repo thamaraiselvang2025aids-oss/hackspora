@@ -6,13 +6,13 @@
   :root {
     --bg-primary: #FFFFFF;
     --bg-surface: #F8FAFC;
-    --accent: #0284C7;
-    --accent-light: #38BDF8;
+    --accent: #7C3AED;
+    --accent-light: #8B5CF6;
   }
 
   body {
     background-color: var(--bg-primary);
-    color: #0F172A;
+    color: #1F2937;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

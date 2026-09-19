@@ -7,15 +7,20 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#0B1220",
-        surface: "#101A2D",
-        "surface-card": "#152238",
-        "surface-border": "rgba(255, 255, 255, 0.08)",
+        background: "#FFFFFF",
+        surface: "#F8FAFC",
+        "surface-card": "#FFFFFF",
+        "surface-border": "rgba(0, 0, 0, 0.1)",
+        brown: {
+          DEFAULT: "#5D4037",
+          light: "#8D6E63",
+          dark: "#3E2723"
+        },
         accent: {
-          DEFAULT: "#14B8A6", // Teal
-          light: "#2DD4BF",
-          dark: "#0F766E",
-          glow: "rgba(20, 184, 166, 0.15)"
+          DEFAULT: "#7C3AED", // Violet
+          light: "#8B5CF6",
+          dark: "#6D28D9",
+          glow: "rgba(124, 58, 237, 0.15)"
         },
         danger: {
           DEFAULT: "#F43F5E", // Rose
