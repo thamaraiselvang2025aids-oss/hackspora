@@ -1,6 +1,7 @@
 import React from 'react';
-import { Eye, Ear, MessageSquare, AlertTriangle, Activity, Sparkles, Radio } from 'lucide-react';
+import { Eye, Ear, MessageSquare, AlertTriangle, Activity, Sparkles, Radio, Mic, Loader2, Volume2, MicOff } from 'lucide-react';
 import { AppMode } from '../../types';
+import { useVoiceAssistant } from '../../contexts/VoiceAssistantContext';
 
 interface HeaderProps {
   currentMode: AppMode;
@@ -17,6 +18,8 @@ export const Header: React.FC<HeaderProps> = ({
   onTriggerSos,
   hasActiveEmergency
 }) => {
+  const { voiceState, startListening, stopListening } = useVoiceAssistant();
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-surface-border bg-background/80 backdrop-blur-xl px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
@@ -97,6 +100,25 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center space-x-2">
+          {/* Voice Assistant Indicator */}
+          <button
+            onClick={() => voiceState === 'idle' ? startListening() : stopListening()}
+            className={`p-2 rounded-lg border transition-colors ${
+              voiceState === 'listening' ? 'bg-danger text-white border-danger animate-pulse' :
+              voiceState === 'processing' ? 'bg-amber-500 text-white border-amber-500' :
+              voiceState === 'speaking' ? 'bg-accent text-white border-accent' :
+              'bg-surface border-surface-border text-slate-300 hover:text-white hover:border-slate-600'
+            }`}
+            title="Voice Assistant Status"
+            aria-label={`Voice Assistant is ${voiceState}. Click to toggle.`}
+            aria-live="polite"
+          >
+            {voiceState === 'listening' ? <Mic className="w-4 h-4" /> :
+             voiceState === 'processing' ? <Loader2 className="w-4 h-4 animate-spin" /> :
+             voiceState === 'speaking' ? <Volume2 className="w-4 h-4" /> :
+             <MicOff className="w-4 h-4 opacity-50" />}
+          </button>
+
           {/* System Telemetry Drawer Button */}
           <button
             onClick={onOpenStatusDrawer}

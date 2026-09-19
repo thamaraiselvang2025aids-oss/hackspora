@@ -5,7 +5,8 @@ import {
 } from 'lucide-react';
 import { useCamera } from '../../hooks/useCamera';
 import { api } from '../../services/api';
-import { speechManager, startVoiceRecognition } from '../../services/speech';
+import { speechManager } from '../../services/speech'; // Keep for some direct calls if needed, or use context speak
+import { useVoiceAssistant } from '../../contexts/VoiceAssistantContext';
 import { soundEffects } from '../../services/audioPlayer';
 import { VisionProcessResponse } from '../../types';
 
@@ -35,6 +36,53 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
   const lastSpokenTextRef = useRef<string>('');
   const loopIntervalRef = useRef<any>(null);
 
+  const { startListening, stopListening, speak, registerIntentHandler, voiceState } = useVoiceAssistant();
+
+  // Voice Assistant Initialization and Handlers
+  useEffect(() => {
+    // Welcome message
+    speak("Welcome to OBSERVA. Voice assistance is active. Say help to learn what you can do.", 2);
+    startListening();
+
+    const unregisterHelp = registerIntentHandler('HELP', () => {
+      speak("You are in Spatial Vision mode. You can say 'What is on this page?', 'Find my keys', 'Turn audio off', or 'Go home'.");
+    });
+
+    const unregisterReadPage = registerIntentHandler('READ_PAGE', () => {
+      const audioStatus = ttsEnabled ? "on" : "off";
+      const targetStatus = targetQuery ? `currently searching for ${targetQuery}.` : "not searching for any specific object.";
+      speak(`Spatial Vision page. Live scene analysis is running. Audio guidance is ${audioStatus}. You are ${targetStatus} You can toggle audio, switch camera, or search using your voice.`);
+    });
+
+    const unregisterSearch = registerIntentHandler('SEARCH_OBJECT', (payload) => {
+      if (payload) {
+        setTargetQuery(payload);
+        setSearchInput(payload);
+        speak(`Searching for ${payload}.`);
+      }
+    });
+
+    const unregisterAudioOn = registerIntentHandler('AUDIO_ON', () => {
+      setTtsEnabled(true);
+      speak("Audio guidance enabled.");
+    });
+
+    const unregisterAudioOff = registerIntentHandler('AUDIO_OFF', () => {
+      speak("Audio guidance disabled.");
+      setTtsEnabled(false);
+      speechManager.stop();
+    });
+
+    return () => {
+      unregisterHelp();
+      unregisterReadPage();
+      unregisterSearch();
+      unregisterAudioOn();
+      unregisterAudioOff();
+      stopListening();
+    };
+  }, [speak, startListening, stopListening, registerIntentHandler, ttsEnabled, targetQuery]);
+
   useEffect(() => {
     startCamera('environment');
     return () => {
@@ -63,7 +111,8 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
 
         if (ttsEnabled && response.concise_narration && response.concise_narration !== lastSpokenTextRef.current) {
           lastSpokenTextRef.current = response.concise_narration;
-          speechManager.speak(response.concise_narration, response.priority_level);
+          // Use context speak so it handles states properly
+          speak(response.concise_narration, response.priority_level);
         }
       } catch (err) {
         console.warn('Vision loop cycle error:', err);
@@ -87,25 +136,18 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
   }, [captureFrameBase64, targetQuery, isDemoMode, selectedDemoScene, panAngle, ttsEnabled, isProcessing]);
 
   const handleVoiceSearch = () => {
-    setIsListeningVoice(true);
-    speechManager.speak('Listening...', 4);
-    const stopRec = startVoiceRecognition(
-      (transcript) => {
-        setIsListeningVoice(false);
-        setTargetQuery(transcript);
-        setSearchInput(transcript);
-        speechManager.speak(`Searching for ${transcript}`, 3);
-      },
-      (err) => { setIsListeningVoice(false); }
-    );
-    setTimeout(() => { setIsListeningVoice(false); stopRec(); }, 5000);
+    // If they manually click the mic button, just ensure we are listening
+    if (voiceState !== 'listening') {
+       startListening();
+       speak('Listening...', 4);
+    }
   };
 
   const handleManualSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchInput.trim()) {
       setTargetQuery(searchInput.trim());
-      speechManager.speak(`Searching for ${searchInput.trim()}`, 3);
+      speak(`Searching for ${searchInput.trim()}`, 3);
     }
   };
 
@@ -121,10 +163,10 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
   const isObstacleImminent = visionData?.path_guidance?.lanes?.some(l => l.lane === 'CENTER' && l.status === 'BLOCKED');
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 space-y-6 flex flex-col h-[calc(100vh-6rem)]">
+    <main aria-label="Spatial Vision" className="max-w-7xl mx-auto px-4 py-6 space-y-6 flex flex-col h-[calc(100vh-6rem)]">
       {/* Top HUD Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center space-x-3">
+      <header className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center space-x-3" aria-hidden="true">
           <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center border border-accent/40">
             <Eye className="w-5 h-5 text-accent-light" />
           </div>
@@ -134,7 +176,7 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center space-x-3 w-full sm:w-auto">
+        <nav aria-label="Spatial Vision Controls" className="flex items-center space-x-3 w-full sm:w-auto">
           {isDemoMode && (
              <span className="px-3 py-1 rounded-full text-[10px] font-mono bg-amber-500/20 text-amber-300 border border-amber-500/30">
                DEMO ACTIVE
@@ -145,18 +187,22 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
             className={`flex items-center space-x-2 px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-wider transition-colors ${
               ttsEnabled ? 'bg-accent/15 border-accent/40 text-accent-light' : 'bg-surface border-surface-border text-slate-500'
             }`}
+            aria-label={ttsEnabled ? 'Mute Audio Guidance' : 'Enable Audio Guidance'}
+            title={ttsEnabled ? 'Mute Audio Guidance' : 'Enable Audio Guidance'}
           >
             {ttsEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             <span>{ttsEnabled ? 'Audio On' : 'Muted'}</span>
           </button>
           <button
             onClick={switchCamera}
+            aria-label="Switch Camera"
+            title="Switch Camera"
             className="p-2.5 rounded-full bg-surface-card border border-surface-border hover:border-accent transition-colors"
           >
             <RefreshCw className="w-4 h-4 text-slate-300" />
           </button>
-        </div>
-      </div>
+        </nav>
+      </header>
 
       {/* Hero Camera View */}
       <div className={`relative flex-1 rounded-3xl overflow-hidden bg-black border-2 transition-colors duration-300 shadow-2xl ${
@@ -241,8 +287,9 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
               <button
                 type="button"
                 onClick={handleVoiceSearch}
+                aria-label="Voice Search"
                 className={`p-3 rounded-xl transition-colors ${
-                  isListeningVoice ? 'bg-danger text-white animate-pulse' : 'bg-surface hover:bg-surface-card text-accent-light'
+                  voiceState === 'listening' ? 'bg-danger text-white animate-pulse' : 'bg-surface hover:bg-surface-card text-accent-light'
                 }`}
               >
                 <Mic className="w-5 h-5" />
@@ -252,6 +299,7 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Find object..."
+                aria-label="Search for object by text"
                 className="flex-1 bg-transparent border-none focus:outline-none text-sm text-white placeholder-slate-500 font-sans"
               />
             </div>
@@ -264,6 +312,6 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
           </form>
         </div>
       </div>
-    </div>
+    </main>
   );
 };

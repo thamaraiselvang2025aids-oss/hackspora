@@ -6,7 +6,8 @@ import { useCamera } from '../../hooks/useCamera';
 import { api } from '../../services/api';
 import { speechManager, startVoiceRecognition } from '../../services/speech';
 import { IslAvatar3D } from '../../components/avatar/IslAvatar3D';
-import { ISLRecognizeResponse, SpeechToAvatarResponse } from '../../types';
+import { ISLRecognizeResponse, SpeechToAvatarResponse, HolisticFrame } from '../../types';
+import { Hands, Results, HAND_CONNECTIONS } from '@mediapipe/hands';
 
 interface CommunicateModePageProps {
   isDemoMode: boolean;
@@ -43,44 +44,76 @@ export const CommunicateModePage: React.FC<CommunicateModePageProps> = ({ isDemo
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const video = videoRef.current;
+    if (!canvas || !video) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    let time = 0;
 
-    const renderSkeleton = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (cameraActive) {
-        time += 0.04;
-        const wristX = canvas.width * 0.65 + Math.sin(time * 1.5) * 20;
-        const wristY = canvas.height * 0.65 + Math.cos(time * 2.0) * 15;
+    let hands: Hands | null = null;
+    
+    if (cameraActive) {
+      hands = new Hands({
+        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+      });
+      hands.setOptions({
+        maxNumHands: 2,
+        modelComplexity: 0,
+        minDetectionConfidence: 0.6,
+        minTrackingConfidence: 0.6
+      });
 
-        ctx.strokeStyle = 'rgba(45, 212, 191, 0.8)';
-        ctx.fillStyle = '#14B8A6';
-        ctx.lineWidth = 1.5;
+      hands.onResults((results: Results) => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        const energy = results.multiHandLandmarks?.length > 0 ? 0.8 : 0.1;
+        setMotionEnergy(energy);
+        setIsSigningActive(energy > 0.45);
 
-        for (let f = 0; f < 5; f++) {
-          let prevX = wristX; let prevY = wristY;
-          const spread = (f - 2) * 18;
-          for (let joint = 1; joint <= 4; joint++) {
-            const jx = wristX + spread * (joint / 4) + (f === 0 ? -25 : 0);
-            const jy = wristY - joint * 22 + Math.sin(time * 3 + f) * 6;
-            ctx.beginPath(); ctx.moveTo(prevX, prevY); ctx.lineTo(jx, jy); ctx.stroke();
-            ctx.beginPath(); ctx.arc(jx, jy, 2.5, 0, Math.PI * 2); ctx.fill();
-            prevX = jx; prevY = jy;
+        if (results.multiHandLandmarks) {
+          for (const landmarks of results.multiHandLandmarks) {
+            // Draw connections
+            ctx.strokeStyle = 'rgba(45, 212, 191, 0.8)';
+            ctx.lineWidth = 2;
+            for (const connection of HAND_CONNECTIONS) {
+              const start = landmarks[connection[0]];
+              const end = landmarks[connection[1]];
+              ctx.beginPath();
+              ctx.moveTo(start.x * canvas.width, start.y * canvas.height);
+              ctx.lineTo(end.x * canvas.width, end.y * canvas.height);
+              ctx.stroke();
+            }
+            // Draw landmarks
+            ctx.fillStyle = '#14B8A6';
+            for (const lm of landmarks) {
+              ctx.beginPath();
+              ctx.arc(lm.x * canvas.width, lm.y * canvas.height, 3, 0, 2 * Math.PI);
+              ctx.fill();
+            }
+          }
+          
+          // Format frame for backend (simplified example)
+          if (results.multiHandLandmarks.length > 0 && Math.random() < 0.1) {
+            // Send occasional frames to backend if needed, or rely on Quick Test buttons
+            // For now we just draw to show real tracking works.
           }
         }
-        ctx.beginPath(); ctx.arc(wristX, wristY, 4, 0, Math.PI * 2); ctx.fill();
+      });
 
-        const computedEnergy = Math.min(1.0, 0.3 + Math.abs(Math.sin(time * 2)) * 0.5);
-        setMotionEnergy(parseFloat(computedEnergy.toFixed(2)));
-        setIsSigningActive(computedEnergy > 0.45);
-      }
-      animFrameRef.current = requestAnimationFrame(renderSkeleton);
+      const detectFrame = async () => {
+        if (video.readyState >= 2 && hands) {
+          try {
+             await hands.send({ image: video });
+          } catch(e){}
+        }
+        animFrameRef.current = requestAnimationFrame(detectFrame);
+      };
+      detectFrame();
+    }
+
+    return () => { 
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (hands) hands.close();
     };
-
-    renderSkeleton();
-    return () => { if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current); };
   }, [cameraActive]);
 
   const handleRecognizeSign = async (gloss: string) => {

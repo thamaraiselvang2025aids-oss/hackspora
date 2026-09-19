@@ -35,6 +35,11 @@ class SpeechManager {
   speak(text: string, priority: number = 4) {
     if (!this.synth || !text.trim()) return;
 
+    // Wake up synth if it's paused or stuck (browser mitigation)
+    if (this.synth.paused) {
+      this.synth.resume();
+    }
+    
     // Interrupt if higher priority (lower number is higher priority)
     if (this.isSpeaking && priority < this.currentPriority) {
       this.synth.cancel();
@@ -42,6 +47,11 @@ class SpeechManager {
     } else if (this.isSpeaking && priority >= this.currentPriority) {
       // Don't interrupt higher priority with lower priority
       return;
+    }
+    
+    // Safety unstick for Safari/Chrome
+    if (!this.isSpeaking) {
+      this.synth.cancel(); 
     }
 
     const utterance = new SpeechSynthesisUtterance(text);

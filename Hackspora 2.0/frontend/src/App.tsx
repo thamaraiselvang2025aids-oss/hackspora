@@ -11,6 +11,59 @@ import { SosCountdownModal } from './features/emergency/SosCountdownModal';
 import { useEmergencyWs } from './hooks/useEmergencyWs';
 import { api } from './services/api';
 import { AppMode, Emergency } from './types';
+import { VoiceAssistantProvider, useVoiceAssistant } from './contexts/VoiceAssistantContext';
+
+// Global listener for navigating across the app via voice
+const GlobalVoiceListener: React.FC<{
+  currentMode: AppMode;
+  setCurrentMode: (m: AppMode) => void;
+  onSos: () => void;
+}> = ({ currentMode, setCurrentMode, onSos }) => {
+  const { registerIntentHandler, speak } = useVoiceAssistant();
+
+  useEffect(() => {
+    const unregisterHome = registerIntentHandler('HOME', () => {
+      speak("Going home.");
+      setCurrentMode('dashboard');
+    });
+
+    const unregisterBack = registerIntentHandler('BACK', () => {
+      speak("Going back to dashboard.");
+      setCurrentMode('dashboard');
+    });
+
+    const unregisterNav = registerIntentHandler('NAVIGATE', (payload) => {
+      if (!payload) return;
+      const target = payload.toLowerCase();
+      if (target.includes('spatial') || target.includes('blind') || target.includes('vision')) {
+        speak("Going to spatial vision.");
+        setCurrentMode('blind');
+      } else if (target.includes('deaf') || target.includes('audio')) {
+        speak("Going to audio guidance.");
+        setCurrentMode('deaf');
+      } else if (target.includes('communicate') || target.includes('nonverbal') || target.includes('communication')) {
+        speak("Going to communication.");
+        setCurrentMode('nonverbal');
+      } else if (target.includes('receiver') || target.includes('emergency')) {
+        speak("Going to emergency receiver view.");
+        setCurrentMode('emergency-receiver');
+      } else if (target.includes('sos') || target.includes('help')) {
+        speak("Opening SOS confirmation.");
+        onSos();
+      } else {
+        speak(`I could not find a page for ${payload}.`);
+      }
+    });
+
+    return () => {
+      unregisterHome();
+      unregisterBack();
+      unregisterNav();
+    };
+  }, [currentMode, setCurrentMode, onSos, registerIntentHandler, speak]);
+
+  return null;
+};
 
 export function App() {
   const [currentMode, setCurrentMode] = useState<AppMode>('dashboard');
@@ -92,8 +145,14 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-slate-900 flex flex-col font-sans selection:bg-accent/30 selection:text-accent-light">
-      {/* Universal Header */}
+    <VoiceAssistantProvider>
+      <div className="min-h-screen bg-background text-slate-900 flex flex-col font-sans selection:bg-accent/30 selection:text-accent-light">
+        <GlobalVoiceListener 
+          currentMode={currentMode} 
+          setCurrentMode={(m) => { setCurrentMode(m); setShowActiveEmergencyView(false); }} 
+          onSos={() => setIsSosModalOpen(true)} 
+        />
+        {/* Universal Header */}
       <Header
         currentMode={currentMode}
         onSelectMode={(mode) => {
@@ -159,6 +218,7 @@ export function App() {
         OBSERVA Multimodal Accessibility OS — "See what matters. Know where it is. Know what you haven't seen."
       </footer>
     </div>
+    </VoiceAssistantProvider>
   );
 }
 
