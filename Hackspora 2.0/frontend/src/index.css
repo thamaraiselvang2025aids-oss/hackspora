@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: #0B1220;
+    --bg-surface: #101A2D;
+    --accent: #14B8A6;
+    --accent-light: #2DD4BF;
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: #F8FAFC;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Inter', sans-serif;
+  }
+
+  /* High-Contrast Accessible Focus */
+  *:focus-visible {
+    outline: 2px solid var(--accent-light);
+    outline-offset: 4px;
+    transition: outline-offset 0.2s ease;
+  }
+}
+
+/* Premium Thin-Border Panels */
+.glass-panel {
+  background: rgba(16, 26, 45, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+}
+
+.glass-panel-glow {
+  background: rgba(16, 26, 45, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(20, 184, 166, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(20, 184, 166, 0.05);
+}
+
+.glass-danger-glow {
+  background: rgba(26, 12, 20, 0.8);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  box-shadow: 0 8px 30px rgba(244, 63, 94, 0.15), inset 0 0 20px rgba(244, 63, 94, 0.05);
+}
+
+/* Custom Futuristic Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #07111F;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #14B8A6;
+}
+
+/* Leaflet Custom Overrides */
+.leaflet-container {
+  background-color: #07111F !important;
+  border-radius: 0.75rem;
+}
