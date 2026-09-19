@@ -118,7 +118,7 @@ export const VoiceAssistantProvider: React.FC<{ children: React.ReactNode }> = (
       parsed.intent = 'STOP';
     } else if (lower.includes('help') || lower.includes('what can i do')) {
       parsed.intent = 'HELP';
-    } else if (lower.includes('read') || lower.includes('what is on this page') || lower.includes('explain')) {
+    } else if (lower.includes('read') || lower.includes('what is on this page') || lower.includes('explain') || lower.includes('what is present') || lower.includes('what is here')) {
       parsed.intent = 'READ_PAGE';
     } else if (lower.includes('go to') || lower.includes('open') || lower.includes('navigate to')) {
       parsed.intent = 'NAVIGATE';
@@ -135,9 +135,9 @@ export const VoiceAssistantProvider: React.FC<{ children: React.ReactNode }> = (
       parsed.intent = 'AUDIO_OFF';
     } else if (lower.includes('start scene analysis') || lower.includes('spatial vision') || lower.includes('start vision')) {
       parsed.intent = 'START_ANALYSIS';
-    } else if (lower.includes('find my') || lower.includes('search for') || lower.includes('look for')) {
+    } else if (lower.includes('find my') || lower.includes('search for') || lower.includes('look for') || lower.startsWith('find ')) {
       parsed.intent = 'SEARCH_OBJECT';
-      const obj = lower.replace(/^(find my|search for|look for)\s+/, '').trim();
+      const obj = lower.replace(/^(find my|search for|look for|find)\s+/, '').trim();
       parsed.payload = obj;
     } else if (lower.includes('repeat') || lower.includes('say that again')) {
       parsed.intent = 'REPEAT';
