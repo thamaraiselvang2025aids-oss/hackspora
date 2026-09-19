@@ -171,8 +171,8 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
             <Eye className="w-5 h-5 text-accent" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-brown tracking-wide">Spatial Vision</h1>
-            <p className="text-xs text-slate-500 font-mono">LIVE SCENE ANALYSIS</p>
+            <h1 className="text-xl font-extrabold text-slate-900 tracking-wide">Spatial Vision</h1>
+            <p className="text-xs text-slate-700 font-mono font-bold">LIVE SCENE ANALYSIS</p>
           </div>
         </div>
 
@@ -184,8 +184,8 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
           )}
           <button
             onClick={() => { setTtsEnabled(!ttsEnabled); if (ttsEnabled) speechManager.stop(); }}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-full border text-xs font-bold uppercase tracking-wider transition-colors ${
-              ttsEnabled ? 'bg-accent/15 border-accent text-accent' : 'bg-surface border-surface-border text-slate-500'
+            className={`flex items-center space-x-2 px-4 py-2 rounded-full border text-xs font-extrabold uppercase tracking-wider transition-colors ${
+              ttsEnabled ? 'bg-accent/15 border-accent text-accent' : 'bg-slate-200 border-slate-300 text-slate-700'
             }`}
             aria-label={ttsEnabled ? 'Mute Audio Guidance' : 'Enable Audio Guidance'}
             title={ttsEnabled ? 'Mute Audio Guidance' : 'Enable Audio Guidance'}
@@ -266,14 +266,14 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
               {ttsEnabled ? <Volume2 className="w-6 h-6 text-accent" /> : <VolumeX className="w-6 h-6 text-slate-400" />}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1 truncate">Live Audio Guidance</p>
-              <p className="text-sm sm:text-lg font-medium text-brown leading-tight">
+              <p className="text-[10px] font-mono text-slate-700 font-bold uppercase tracking-widest mb-1 truncate">Live Audio Guidance</p>
+              <p className="text-sm sm:text-lg font-extrabold text-slate-900 leading-tight">
                 {visionData?.concise_narration || 'Scanning environment...'}
               </p>
             </div>
-            <div className="hidden sm:flex flex-col items-center justify-center px-4 border-l border-slate-200 shrink-0">
+            <div className="hidden sm:flex flex-col items-center justify-center px-4 border-l border-slate-300 shrink-0">
               {getDirectionIcon(visionData?.path_guidance?.recommended_direction)}
-              <span className="text-[10px] font-mono text-slate-500 mt-1 uppercase">
+              <span className="text-[10px] font-mono font-bold text-slate-700 mt-1 uppercase">
                 {visionData?.path_guidance?.recommended_direction || 'FORWARD'}
               </span>
             </div>
@@ -300,7 +300,7 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
                 onChange={(e) => setSearchInput(e.target.value)}
                 placeholder="Find object..."
                 aria-label="Search for object by text"
-                className="flex-1 bg-transparent border-none focus:outline-none text-sm text-brown placeholder-slate-400 font-sans min-w-0"
+                className="flex-1 bg-transparent border-none focus:outline-none text-base font-bold text-slate-900 placeholder-slate-500 font-sans min-w-0"
               />
             </div>
             {targetQuery && (
@@ -321,12 +321,12 @@ export const BlindModePage: React.FC<BlindModePageProps> = ({
               speak("Voice assistant activated.", 2);
             }}
           >
-            <div className="bg-white px-6 py-4 rounded-2xl shadow-2xl flex flex-col items-center space-y-3">
-              <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center">
-                <Mic className="w-8 h-8 text-accent animate-pulse" />
+            <div className="bg-white px-6 py-6 rounded-2xl shadow-2xl flex flex-col items-center space-y-4 border-2 border-accent">
+              <div className="w-20 h-20 rounded-full bg-accent/20 flex items-center justify-center">
+                <Mic className="w-10 h-10 text-accent animate-pulse" />
               </div>
-              <p className="text-brown font-bold">Tap to Start Voice Assistant</p>
-              <p className="text-xs text-slate-500 max-w-[200px] text-center">Required by your browser to enable the microphone.</p>
+              <p className="text-slate-900 text-xl font-extrabold text-center">Tap to Start Voice Assistant</p>
+              <p className="text-sm font-bold text-slate-700 max-w-[250px] text-center">Required by your browser to enable the microphone.</p>
             </div>
           </div>
         )}
