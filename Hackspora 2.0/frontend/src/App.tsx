@@ -14,7 +14,6 @@ import { AppMode, Emergency } from './types';
 
 export function App() {
   const [currentMode, setCurrentMode] = useState<AppMode>('dashboard');
-  const [isDemoMode, setIsDemoMode] = useState<boolean>(true);
   const [isStatusDrawerOpen, setIsStatusDrawerOpen] = useState<boolean>(false);
   const [isSosModalOpen, setIsSosModalOpen] = useState<boolean>(false);
   const [showActiveEmergencyView, setShowActiveEmergencyView] = useState<boolean>(false);
@@ -93,7 +92,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-slate-100 flex flex-col font-sans selection:bg-accent/30 selection:text-accent-light">
+    <div className="min-h-screen bg-background text-slate-900 flex flex-col font-sans selection:bg-accent/30 selection:text-accent-light">
       {/* Universal Header */}
       <Header
         currentMode={currentMode}
@@ -101,8 +100,6 @@ export function App() {
           setCurrentMode(mode);
           setShowActiveEmergencyView(false);
         }}
-        isDemoMode={isDemoMode}
-        onToggleDemoMode={() => setIsDemoMode(!isDemoMode)}
         onOpenStatusDrawer={() => setIsStatusDrawerOpen(true)}
         onTriggerSos={() => setIsSosModalOpen(true)}
         hasActiveEmergency={!!activeEmergency && activeEmergency.status !== 'RESOLVED'}
@@ -122,14 +119,14 @@ export function App() {
             onSelectMode={setCurrentMode}
             onTriggerSos={() => setIsSosModalOpen(true)}
             onQuickSearch={() => setCurrentMode('blind')}
-            isDemoMode={isDemoMode}
+            isDemoMode={false}
           />
         ) : currentMode === 'blind' ? (
-          <BlindModePage isDemoMode={isDemoMode} />
+          <BlindModePage isDemoMode={false} />
         ) : currentMode === 'deaf' ? (
-          <DeafModePage isDemoMode={isDemoMode} />
+          <DeafModePage isDemoMode={false} />
         ) : currentMode === 'nonverbal' ? (
-          <CommunicateModePage isDemoMode={isDemoMode} />
+          <CommunicateModePage isDemoMode={false} />
         ) : (
           <EmergencyReceiverPage
             activeEmergency={activeEmergency}
@@ -154,7 +151,7 @@ export function App() {
         cameraActive={currentMode === 'blind' || currentMode === 'nonverbal'}
         micActive={currentMode === 'deaf' || currentMode === 'blind'}
         wsConnected={wsConnected}
-        isDemoMode={isDemoMode}
+        isDemoMode={false}
       />
 
       {/* Footer Branding */}

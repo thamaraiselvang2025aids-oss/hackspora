@@ -5,8 +5,6 @@ import { AppMode } from '../../types';
 interface HeaderProps {
   currentMode: AppMode;
   onSelectMode: (mode: AppMode) => void;
-  isDemoMode: boolean;
-  onToggleDemoMode: () => void;
   onOpenStatusDrawer: () => void;
   onTriggerSos: () => void;
   hasActiveEmergency: boolean;
@@ -15,8 +13,6 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({
   currentMode,
   onSelectMode,
-  isDemoMode,
-  onToggleDemoMode,
   onOpenStatusDrawer,
   onTriggerSos,
   hasActiveEmergency
@@ -35,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <span className="font-extrabold text-lg tracking-wider text-slate-100 font-sans">
+              <span className="font-extrabold text-lg tracking-wider text-slate-900 font-sans">
                 OBSERVA
               </span>
               <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-accent/15 text-accent border border-accent/30">
@@ -101,22 +97,6 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Action Controls */}
         <div className="flex items-center space-x-2">
-          {/* Explicit DEMO / LIVE Mode Toggle */}
-          <button
-            onClick={onToggleDemoMode}
-            className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-lg text-xs font-mono border transition-all ${
-              isDemoMode
-                ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
-                : 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
-            }`}
-            title="Toggle between Live Hardware Sensors and Deterministic Demo Scenes"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline font-bold">
-              {isDemoMode ? 'DEMO MODE' : 'LIVE SENSORS'}
-            </span>
-          </button>
-
           {/* System Telemetry Drawer Button */}
           <button
             onClick={onOpenStatusDrawer}
