@@ -9,7 +9,7 @@ export function useEmergencyWs(userId: string = 'default-user') {
   const reconnectTimeoutRef = useRef<any>(null);
 
   const connect = useCallback(() => {
-    const wsUrl = (import.meta.env.VITE_WS_URL || `ws://${window.location.hostname}:8000`) + `/ws/emergency/${userId}`;
+    const wsUrl = (import.meta.env.VITE_WS_URL || (import.meta.env.PROD ? 'wss://observa-backend.onrender.com' : `ws://${window.location.hostname}:8000`)) + `/ws/emergency/${userId}`;
     const ws = new WebSocket(wsUrl);
     wsRef.current = ws;
 
